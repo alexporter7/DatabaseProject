@@ -57,9 +57,21 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         //======= Get the Connection =======
+        System.out.println("Attempting to grab database connection");
         Connection conn = getConnection();
+        System.out.println("Connection successful");
         //======= Initialize the Tables =======
+        System.out.println("Attempting to initialize database");
         init(conn);
+        System.out.println("Initialization successful");
+
+        //Put a menu here
+        //insert -> create queryBuilder() to ask user data for row
+        //select ->
+        //      table -> dump table contents
+        //      id -> ask table, ask id return row
+
+        //FOR TESTING PURPOSES
         List<String> results = selectData(conn, "customers");
         results.forEach(System.out::println);
 

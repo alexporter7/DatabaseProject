@@ -17,6 +17,11 @@ public class Main {
     public static final List<String> ITEM_SALE_COLUMNS = Arrays.asList("id", "customer_id", "item_id", "quantity");
     public static final List<String> INVENTORY_COLUMNS = Arrays.asList("id", "item_name", "price", "stock");
 
+    //======= Table Columns for Inserting Data =======
+    public static List<String> customerColumns = Arrays.asList("first", "last");
+    public static List<String> itemSaleColumns = Arrays.asList("customer_id", "item_id", "quantity");
+    public static List<String> inventoryColumns = Arrays.asList("item_name", "price", "stock");
+
     public static void init(Connection connection) throws Exception {
         //Specify the table data for each table
         Hashtable<String, String> tableDict = new Hashtable<>();
@@ -37,7 +42,6 @@ public class Main {
         //Check if the table is empty, if NOT then insert test data
         List<String> currentCustomerData = selectData(connection, "customers");
         if(currentCustomerData.size() == 0) {
-            List<String> customerColumns = Arrays.asList("first", "last");
             List<List<String>> customerData = Arrays.asList(
                     Arrays.asList("John", "Doe"),
                     Arrays.asList("Jane", "Doe"),
@@ -47,7 +51,6 @@ public class Main {
         }
         List<String> currentItemSaleData = selectData(connection, "item_sale");
         if(currentItemSaleData.size() == 0) {
-            List<String> itemSaleColumns = Arrays.asList("customer_id", "item_id", "quantity");
             List<List<String>> itemSaleData = Arrays.asList(
                     Arrays.asList("0", "1", "2"),
                     Arrays.asList("0", "2", "1"),
@@ -60,7 +63,6 @@ public class Main {
         }
         List<String> currentInventoryData = selectData(connection, "inventory");
         if(currentInventoryData.size() == 0) {
-            List<String> inventoryColumns = Arrays.asList("item_name", "price", "stock");
             List<List<String>> inventoryData = Arrays.asList(
                     Arrays.asList("Item 1", "10", "46"),
                     Arrays.asList("Item 2", "15", "24"),
@@ -136,7 +138,46 @@ public class Main {
     }
 
     public static void insertMenu() throws Exception {
-
+        String response = Menu.getLimitedResponse(Menu.MENU_OPTIONS.INSERT_MENU);
+        if( response.equals("row") ) {
+            //Get the Table Name
+            Scanner userInput = new Scanner(System.in);
+            System.out.print("Table Name: ");
+            String tableName = userInput.nextLine();
+            //Switch through different table names
+            switch (tableName) {
+                case "customers":
+                    List<String> customerData = new ArrayList<>();      //Create an empty list
+                    customerColumns.forEach( column -> {        //Stream all columns to get input
+                            System.out.printf("%s: ", column);
+                            customerData.add(userInput.nextLine());     //Append them to the customerData
+                    });
+                    //Create a double List (required for method) and insert customerData
+                    List<List<String>> dataToInsert = Arrays.asList(customerData);
+                    insertRow(conn, "customers", customerColumns, dataToInsert);
+                    break;
+                case "inventory":
+                    List<String> inventoryData = new ArrayList<>();      //Create an empty list
+                    inventoryColumns.forEach( column -> {        //Stream all columns to get input
+                        System.out.printf("%s: ", column);
+                        inventoryData.add(userInput.nextLine());     //Append them to the inventoryData
+                    });
+                    //Create a double List (required for method) and insert inventoryData
+                    List<List<String>> inventoryDataToInsert = Arrays.asList(inventoryData);
+                    insertRow(conn, "customers", customerColumns, inventoryDataToInsert);
+                    break;
+                case "item_sale":
+                    List<String> itemSaleData = new ArrayList<>();      //Create an empty list
+                    itemSaleColumns.forEach( column -> {        //Stream all columns to get input
+                        System.out.printf("%s: ", column);
+                        itemSaleData.add(userInput.nextLine());     //Append them to the itemSaleData
+                    });
+                    //Create a double List (required for method) and insert itemSaleData
+                    List<List<String>> itemSaleDataToInsert = Arrays.asList(itemSaleData);
+                    insertRow(conn, "customers", customerColumns, itemSaleDataToInsert);
+                    break;
+            }
+        }
         main(null);
     }
 

@@ -182,11 +182,29 @@ public class Main {
     }
 
     public static void removeMenu() throws Exception {
-
+        Scanner userInput = new Scanner(System.in);
+        String response = Menu.getLimitedResponse(Menu.MENU_OPTIONS.REMOVE_MENU);
+        System.out.print("Table Name: ");
+        String tableName = userInput.nextLine();
+        if ("row".equals(response)) {
+            System.out.print("ID: ");
+            String id = userInput.nextLine();
+            removeData(conn, tableName, id);
+        }
         main(null);
     }
 
-    public static List<String> selectData(Connection conn, String tableName, String id) throws Exception{
+    public static void removeData(Connection conn, String tableName, String id) throws Exception {
+        try {
+            //Get the row where the id matches
+            PreparedStatement statement = conn.prepareStatement(
+                    String.format("DELETE FROM %s WHERE id=%s", tableName, id)
+            );
+            statement.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    public static List<String> selectData(Connection conn, String tableName, String id) throws Exception {
         List<String> results = new ArrayList<>();
 
         try {
@@ -194,6 +212,7 @@ public class Main {
             PreparedStatement statement = conn.prepareStatement(
                     String.format("SELECT * FROM %s WHERE id=%s", tableName, id)
             );
+
             //Get the ResultSet and add it to our results List
             ResultSet result = statement.executeQuery();
             while( result.next() ) {

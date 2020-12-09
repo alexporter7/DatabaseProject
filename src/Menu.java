@@ -11,7 +11,7 @@ public class Menu {
     public static final List<String> INSERT_MENU_OPTIONS =
             Arrays.asList("row", "quit");
     public static final List<String> REMOVE_MENU_OPTIONS =
-            Arrays.asList("row", "all", "quit");
+            Arrays.asList("row", "quit");
 
     public static String getLimitedResponse(MENU_OPTIONS OPTIONS) {
         Scanner userInput = new Scanner(System.in);

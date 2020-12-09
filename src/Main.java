@@ -1,12 +1,13 @@
 import com.mysql.cj.x.protobuf.MysqlxPrepare;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 public class Main {
+
+    public static boolean hasInit = false;
+
+    public static Connection conn;
 
     //======= Define our Table Names =======
     public static final List<String> TABLE_NAMES = Arrays.asList("customers", "item_sale", "inventory");
@@ -46,36 +47,135 @@ public class Main {
         }
         List<String> currentItemSaleData = selectData(connection, "item_sale");
         if(currentItemSaleData.size() == 0) {
-            //Init List
+            List<String> itemSaleColumns = Arrays.asList("customer_id", "item_id", "quantity");
+            List<List<String>> itemSaleData = Arrays.asList(
+                    Arrays.asList("0", "1", "2"),
+                    Arrays.asList("0", "2", "1"),
+                    Arrays.asList("0", "1", "4"),
+                    Arrays.asList("0", "3", "1"),
+                    Arrays.asList("1", "2", "4"),
+                    Arrays.asList("2", "1", "7")
+            );
+            insertRow(connection, "item_sale", itemSaleColumns, itemSaleData);
         }
         List<String> currentInventoryData = selectData(connection, "inventory");
         if(currentInventoryData.size() == 0) {
-            //Init List
+            List<String> inventoryColumns = Arrays.asList("item_name", "price", "stock");
+            List<List<String>> inventoryData = Arrays.asList(
+                    Arrays.asList("Item 1", "10", "46"),
+                    Arrays.asList("Item 2", "15", "24"),
+                    Arrays.asList("Item 3", "5", "31"),
+                    Arrays.asList("Item 4", "20", "23")
+            );
+            insertRow(connection, "inventory", inventoryColumns, inventoryData);
         }
     }
 
     public static void main(String[] args) throws Exception {
 
-        //======= Get the Connection =======
-        System.out.println("Attempting to grab database connection");
-        Connection conn = getConnection();
-        System.out.println("Connection successful");
-        //======= Initialize the Tables =======
-        System.out.println("Attempting to initialize database");
-        init(conn);
-        System.out.println("Initialization successful");
+        if(!hasInit) {
+            //======= Get the Connection =======
+            System.out.println("Attempting to grab database connection");
+            conn = getConnection();
+            System.out.println("Connection successful");
+            //======= Initialize the Tables =======
+            System.out.println("Attempting to initialize database");
+            init(conn);
+            System.out.println("Initialization successful");
+            hasInit = true;
+        }
 
-        //Put a menu here
-        //insert -> create queryBuilder() to ask user data for row
-        //select ->
-        //      table -> dump table contents
-        //      id -> ask table, ask id return row
+        //Print syntax
+        System.out.println("\n================ Menu Options ===============\n");
+        System.out.println("main_menu: view, insert, remove, quit\n" +
+                            "view_menu: all, row, quit\n" +
+                            "insert_menu: row, quit\n" +
+                            "remove_menu: all, row, quit\n");
+        //Prompt for the main menu
+        String response = Menu.getLimitedResponse(Menu.MENU_OPTIONS.MAIN_MENU);
+        switch(response) {
+            case "quit":
+                System.exit(0);
+                break;
+            case "view":
+                viewMenu();
+                break;
+            case "insert":
+                insertMenu();
+                break;
+            case "remove":
+                removeMenu();
+                break;
+        }
+        //Loop back into main menu (except in case of quit
+        main(null);
 
         //FOR TESTING PURPOSES
-        List<String> results = selectData(conn, "customers");
-        results.forEach(System.out::println);
+//        List<String> results = selectData(conn, "customers");
+//        results.forEach(System.out::println);
+    }
 
+    public static void viewMenu() throws Exception {
+        Scanner userInput = new Scanner(System.in);
+        String response = Menu.getLimitedResponse(Menu.MENU_OPTIONS.VIEW_MENU);
+        switch(response) {
+            case "row":
+                System.out.print("ID: ");
+                String id = userInput.nextLine();
+                System.out.print("Table Name: ");
+                String tableNameId = userInput.nextLine();
+                selectData(conn, tableNameId, id).forEach(System.out::println);
+                break;
+            case "all":
+                System.out.print("Table Name: ");
+                String tableName = userInput.nextLine();
+                selectData(conn, tableName).forEach(System.out::println);
+                break;
+        }
+        main(null);
+    }
 
+    public static void insertMenu() throws Exception {
+
+        main(null);
+    }
+
+    public static void removeMenu() throws Exception {
+
+        main(null);
+    }
+
+    public static List<String> selectData(Connection conn, String tableName, String id) throws Exception{
+        List<String> results = new ArrayList<>();
+
+        try {
+            //Get the row where the id matches
+            PreparedStatement statement = conn.prepareStatement(
+                    String.format("SELECT * FROM %s WHERE id=%s", tableName, id)
+            );
+            //Get the ResultSet and add it to our results List
+            ResultSet result = statement.executeQuery();
+            while( result.next() ) {
+                switch (tableName) {
+                    case "customers":
+                        results.add(String.format("ID: %s%nFirst Name: %s%nLast Name: %s",
+                                result.getString(1), result.getString(2), result.getString(3)));
+                        break;
+                    case "item_sale":
+                        results.add(String.format("ID: %s%nCustomer ID: %s%nItem ID: %s%nQuantity: %s",
+                                result.getString(1), result.getString(2),
+                                result.getString(3), result.getString(4)));
+                        break;
+                    case "inventory":
+                        results.add(String.format("ID: %s%nItem Name: %s%nPrice: %s%nStock: %s",
+                                result.getString(1), result.getString(2),
+                                result.getString(3), result.getString(4)));
+                        break;
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        return results;
     }
 
     public static List<String> selectData(Connection conn, String tableName) throws Exception{

@@ -164,7 +164,7 @@ public class Main {
                     });
                     //Create a double List (required for method) and insert inventoryData
                     List<List<String>> inventoryDataToInsert = Arrays.asList(inventoryData);
-                    insertRow(conn, "customers", customerColumns, inventoryDataToInsert);
+                    insertRow(conn, "inventory", inventoryColumns, inventoryDataToInsert);
                     break;
                 case "item_sale":
                     List<String> itemSaleData = new ArrayList<>();      //Create an empty list
@@ -174,7 +174,7 @@ public class Main {
                     });
                     //Create a double List (required for method) and insert itemSaleData
                     List<List<String>> itemSaleDataToInsert = Arrays.asList(itemSaleData);
-                    insertRow(conn, "customers", customerColumns, itemSaleDataToInsert);
+                    insertRow(conn, "item_sale", itemSaleColumns, itemSaleDataToInsert);
                     break;
             }
         }
